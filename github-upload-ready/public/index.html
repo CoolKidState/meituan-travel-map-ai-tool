@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>周边推荐 AI 助手</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="map-stage">
+        <div id="amapContainer" class="map"></div>
+        <div class="crosshair" aria-hidden="true"></div>
+        <button class="map-area-toggle" type="button" id="mapAreaToggle" title="显示/隐藏识别区域" aria-label="显示或隐藏识别区域" hidden>
+          区块
+        </button>
+        <button class="map-locate" type="button" id="mapLocateButton" title="定位到当前位置" aria-label="定位到当前位置">
+          <span aria-hidden="true"></span>
+        </button>
+        <div class="map-fallback" id="mapFallback">
+          <strong>正在加载高德地图</strong>
+          <span>如果一直停在这里，请检查 Web端(JS API) Key 和安全密钥。</span>
+        </div>
+      </section>
+
+      <aside class="control-panel" aria-label="推荐与规划控制台">
+        <header class="panel-header">
+          <div>
+            <p class="eyebrow">本地生活</p>
+            <h1>周边推荐</h1>
+          </div>
+          <div class="status-row" aria-live="polite">
+            <span class="status" id="mapStatus">地图检测中</span>
+            <span class="status" id="aiStatus">AI 检测中</span>
+          </div>
+          <div class="mode-switch" role="tablist" aria-label="功能入口">
+            <button class="mode-button" type="button" data-mode="nearby" role="tab" aria-selected="false">周边推荐</button>
+            <button class="mode-button active" type="button" data-mode="planner" role="tab" aria-selected="true">智能规划</button>
+          </div>
+        </header>
+
+        <section class="mode-panel" id="nearbyPanel" hidden>
+          <form id="nearbyForm" class="search-form tool-block">
+            <label>
+              位置
+              <input name="locationText" placeholder="可输入地点，也可以直接拖动地图" />
+            </label>
+
+            <button class="secondary" type="button" id="locateButton">定位到当前位置</button>
+
+            <div class="row">
+              <label>
+                类型
+                <select name="types">
+                  <option value="street-rank">高德扫街榜单</option>
+                  <option value="050000">美食餐饮</option>
+                  <option value="110000">风景名胜</option>
+                  <option value="060000">购物</option>
+                  <option value="100000">住宿</option>
+                  <option value="080000">体育休闲</option>
+                  <option value="">不限类型</option>
+                </select>
+              </label>
+              <label>
+                半径
+                <select name="radius">
+                  <option value="1000">1 km</option>
+                  <option value="2000" selected>2 km</option>
+                  <option value="5000">5 km</option>
+                  <option value="10000">10 km</option>
+                </select>
+              </label>
+            </div>
+
+            <label>
+              关键词
+              <input name="keyword" placeholder="例如：咖啡、火锅、亲子、停车" />
+            </label>
+
+            <label>
+              偏好
+              <textarea name="preference" rows="3" placeholder="例如：适合两个人、不要太贵、离地铁近、适合拍照"></textarea>
+            </label>
+
+            <button class="primary" type="submit">
+              <span>搜索周边</span>
+            </button>
+          </form>
+
+          <section class="summary tool-block" aria-live="polite">
+            <div class="section-heading">
+              <h2>AI 推荐</h2>
+              <button class="ghost" type="button" id="copyAdvice" disabled>复制</button>
+            </div>
+            <div class="advice-text" id="adviceText"></div>
+          </section>
+
+          <section class="poi-section tool-block">
+            <div class="section-heading">
+              <h2>附近地点</h2>
+              <span id="resultCount"></span>
+            </div>
+            <div class="poi-list" id="poiList"></div>
+          </section>
+        </section>
+
+        <section class="mode-panel" id="plannerPanel">
+          <form class="search-form planner-form tool-block" id="plannerForm">
+            <label>
+              <span class="label-row">
+                想法
+                <button class="small-action" type="button" id="randomIdeaButton">随机</button>
+              </span>
+              <textarea name="goal" rows="4"></textarea>
+            </label>
+
+            <div class="row">
+              <label>
+                场景
+                <select name="scenario">
+                  <option value="无明确" selected>无明确</option>
+                  <option value="家庭">家庭</option>
+                  <option value="朋友">朋友</option>
+                  <option value="约会">约会</option>
+                  <option value="临时聚会">临时聚会</option>
+                </select>
+              </label>
+              <label>
+                时长
+                <select name="duration">
+                  <option value="无明确" selected>无明确</option>
+                  <option value="2 小时">2 小时</option>
+                  <option value="3 小时">3 小时</option>
+                  <option value="4 小时">4 小时</option>
+                  <option value="6 小时">6 小时</option>
+                  <option value="半天">半天</option>
+                  <option value="一天">一天</option>
+                </select>
+              </label>
+            </div>
+
+            <label>
+              地点数
+              <select name="stopCount">
+                <option value="无明确" selected>无明确</option>
+                <option value="2">2 个地方</option>
+                <option value="3">3 个地方</option>
+                <option value="4">4 个地方</option>
+                <option value="5">5 个地方</option>
+              </select>
+            </label>
+
+            <button class="primary" type="submit">
+              <span>生成智能方案</span>
+            </button>
+          </form>
+
+          <section class="summary tool-block">
+            <div class="section-heading">
+              <h2>方案预览</h2>
+              <button class="ghost" type="button" id="copyPlan" disabled>复制</button>
+            </div>
+            <div class="timeline-preview" id="planPreview">
+              <article>
+                <strong>识别目标</strong>
+                <span>从一句话里判断起点、时间、人群、偏好和约束。</span>
+              </article>
+              <article>
+                <strong>动态召回</strong>
+                <span>按意图搜索餐饮、玩乐、购物、休闲等真实地点。</span>
+              </article>
+              <article>
+                <strong>组合路线</strong>
+                <span>把候选地点组织成可走的短时活动方案。</span>
+              </article>
+            </div>
+          </section>
+
+          <section class="poi-section tool-block">
+            <div class="section-heading">
+              <h2>规划链路</h2>
+            </div>
+            <div class="trace-list" id="planTrace"></div>
+          </section>
+
+          <section class="poi-section tool-block">
+            <div class="section-heading">
+              <h2>动作清单</h2>
+            </div>
+            <div class="action-list" id="planActions">
+              <button type="button">生成方案后可复制文案</button>
+              <button type="button">生成方案后可打开路线</button>
+              <button type="button">生成方案后可查看餐厅信息</button>
+            </div>
+            <div class="action-feedback" id="actionFeedback" aria-live="polite"></div>
+          </section>
+        </section>
+      </aside>
+
+      <aside class="execution-sidebar" id="executionSidebar" hidden>
+        <header>
+          <div>
+            <p class="eyebrow">智能履约</p>
+            <h2>智能下单/预订</h2>
+          </div>
+          <button class="execution-close" type="button" id="executionSidebarClose" aria-label="关闭智能下单">关闭</button>
+        </header>
+        <div class="execution-sidebar-body" id="executionSidebarBody">
+          <div class="execution-empty">点击任意地点后，这里会生成订座、排队、预约或下单动作。</div>
+        </div>
+      </aside>
+
+      <aside class="action-drawer" id="actionDrawer" hidden>
+        <header>
+          <div>
+            <p class="eyebrow">动作详情</p>
+            <h2 id="actionDrawerTitle">详情</h2>
+          </div>
+          <button class="drawer-close" type="button" id="actionDrawerClose" aria-label="关闭动作详情">关闭</button>
+        </header>
+        <div class="action-drawer-body" id="actionDrawerBody"></div>
+      </aside>
+    </main>
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
