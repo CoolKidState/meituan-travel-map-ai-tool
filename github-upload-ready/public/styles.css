@@ -79,33 +79,33 @@ button:disabled {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 34px;
-  height: 34px;
+  width: 42px;
+  height: 42px;
   transform: translate(-50%, -50%);
   pointer-events: none;
   z-index: 5;
+  border-radius: 50%;
+  background:
+    linear-gradient(var(--brand-dark), var(--brand-dark)) center 0 / 2px 11px no-repeat,
+    linear-gradient(var(--brand-dark), var(--brand-dark)) center 31px / 2px 11px no-repeat,
+    linear-gradient(var(--brand-dark), var(--brand-dark)) 0 center / 11px 2px no-repeat,
+    linear-gradient(var(--brand-dark), var(--brand-dark)) 31px center / 11px 2px no-repeat,
+    radial-gradient(circle, transparent 0 4px, #fff 4px 6px, var(--brand-dark) 6px 8px, transparent 8px);
+  filter: drop-shadow(0 2px 4px rgba(21, 32, 43, 0.28));
 }
 
-.crosshair::before,
 .crosshair::after {
   content: "";
   position: absolute;
-  background: #13202c;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.88);
-}
-
-.crosshair::before {
-  left: 16px;
-  top: 0;
-  width: 2px;
-  height: 34px;
-}
-
-.crosshair::after {
-  left: 0;
-  top: 16px;
-  width: 34px;
-  height: 2px;
+  left: 50%;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: var(--accent);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 1px rgba(21, 32, 43, 0.18);
 }
 
 .map-locate,
