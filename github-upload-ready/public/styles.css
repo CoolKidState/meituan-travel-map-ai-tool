@@ -84,29 +84,21 @@ button:disabled {
   transform: translate(-50%, -50%);
   pointer-events: none;
   z-index: 5;
-}
-
-.crosshair::before,
-.crosshair::after {
-  content: "";
-  position: absolute;
   background: var(--brand-dark);
-}
-
-.crosshair::before {
-  left: 50%;
-  top: 2px;
-  width: 2px;
-  height: 18px;
-  transform: translateX(-50%);
-}
-
-.crosshair::after {
-  left: 2px;
-  top: 50%;
-  width: 18px;
-  height: 2px;
-  transform: translateY(-50%);
+  clip-path: polygon(
+    45% 0,
+    55% 0,
+    55% 45%,
+    100% 45%,
+    100% 55%,
+    55% 55%,
+    55% 100%,
+    45% 100%,
+    45% 55%,
+    0 55%,
+    0 45%,
+    45% 45%
+  );
 }
 
 .map-locate,
