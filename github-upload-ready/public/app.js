@@ -31,6 +31,7 @@ const executionSidebarClose = document.querySelector("#executionSidebarClose");
 const DEFAULT_CENTER = [116.397428, 39.90923];
 const FIT_PADDING = [60, 60, 60, 60];
 const EXECUTION_STORAGE_KEY = "meituan-demo-execution-orders";
+const MAP_CLICK_MOVE_MS = 650;
 
 let mapConfig = null;
 let currentMap = null;
@@ -43,6 +44,7 @@ let planRouteLines = [];
 let clickMoveLine = null;
 let clickMoveLineTimer = null;
 let clickMoveTarget = null;
+let mapCenterAnimationId = 0;
 let planRoutePoints = [];
 let segmentModes = [];
 let latestAdvice = "";
@@ -188,9 +190,7 @@ async function bootMap() {
   currentMap.on("click", (event) => {
     const point = safePoint([event.lnglat.lng, event.lnglat.lat], null);
     if (!point) return;
-    drawClickMoveLine(safeCurrentCenter(), point);
-    currentCenter = point;
-    currentMap.setCenter(currentCenter);
+    moveMapCenterFixed(point);
   });
 
   mapFallback.hidden = true;
@@ -1153,6 +1153,47 @@ function drawClickMoveLine(from, to) {
     zIndex: 150
   });
   currentMap.add(clickMoveLine);
+}
+
+function moveMapCenterFixed(target) {
+  if (!currentMap || !target) return;
+  const from = safeCurrentCenter();
+  const to = safePoint(target, from);
+  if (!to) return;
+
+  if (mapCenterAnimationId) {
+    cancelAnimationFrame(mapCenterAnimationId);
+    mapCenterAnimationId = 0;
+  }
+
+  drawClickMoveLine(from, to);
+
+  const startedAt = performance.now();
+  const ease = (value) => 1 - Math.pow(1 - value, 3);
+
+  const step = (now) => {
+    const progress = Math.min(1, (now - startedAt) / MAP_CLICK_MOVE_MS);
+    const eased = ease(progress);
+    const next = [
+      from[0] + (to[0] - from[0]) * eased,
+      from[1] + (to[1] - from[1]) * eased
+    ];
+
+    currentCenter = next;
+    currentMap.setCenter(next);
+
+    if (progress < 1) {
+      mapCenterAnimationId = requestAnimationFrame(step);
+      return;
+    }
+
+    currentCenter = to;
+    currentMap.setCenter(to);
+    mapCenterAnimationId = 0;
+    scheduleClickMoveLineClear();
+  };
+
+  mapCenterAnimationId = requestAnimationFrame(step);
 }
 
 function scheduleClickMoveLineClear() {
